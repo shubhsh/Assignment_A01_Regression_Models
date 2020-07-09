@@ -3,6 +3,8 @@
  
  1. Introduction
  
+    This assignment is aimed at building regerssion models for the Taiwanese Real Estate Valuation problem and selecting the best model among the proposed ones on the basis of various observations that will me made.
+ 
  2. Data
  
     Data taken from: https://archive.ics.uci.edu/ml/datasets/Real+estate+valuation+data+set#
@@ -22,8 +24,12 @@
     Relevant Papers: Yeh, I. C., & Hsu, T. K. (2018). Building real estate valuation models with comparative approach through case-based reasoning. Applied Soft Computing, 65, 260-271.
  
  3. Exploratory Analysis
+    a. Univariate Analysis with plots
+    b. Multivariate Analysis with plots
  
  4. Model Building
+    a. Forward Selection
+    b. Backward Selection
  
  5. Prediction
  
