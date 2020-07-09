@@ -24,12 +24,12 @@
     Relevant Papers: Yeh, I. C., & Hsu, T. K. (2018). Building real estate valuation models with comparative approach through case-based reasoning. Applied Soft Computing, 65, 260-271.
  
  3. Exploratory Analysis
-    a. Univariate Analysis with plots
-    b. Multivariate Analysis with plots
+    - Univariate Analysis with plots
+    - Multivariate Analysis with plots
  
  4. Model Building
-    a. Forward Selection
-    b. Backward Selection
+    - Forward Selection
+    - Backward Selection
  
  5. Prediction
  
