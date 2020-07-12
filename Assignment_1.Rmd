@@ -1,0 +1,253 @@
+---
+title: "MBA6693 - Business Analytics"
+author: "Shubh Sharma"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Introduction
+
+This assignment is aimed at building regression models for the Taiwanese Real Estate Valuation problem and selecting the best model among the proposed ones on the basis of various observations that will me make.
+
+
+
+```{r cars}
+library(scatterplot3d)
+library(corrplot)
+library(ggiraphExtra)
+library(ggplot2)
+library(broom)
+library(readxl)
+Real_estate_valuation_data_set <- read_excel("C:/Users/casa/Downloads/Real estate valuation data set.xlsx")
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "X1 transaction date"] <- "x1"
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "X2 house age"] <- "x2"
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "X3 distance to the nearest MRT station"] <- "x3"
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "X4 number of convenience stores"] <- "x4"
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "X5 latitude"] <- "x5"
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "X6 longitude"] <- "x6"
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "Y house price of unit area"] <- "y"
+
+```
+## 2. Data Description
+
+Data taken from: https://archive.ics.uci.edu/ml/datasets/Real+estate+valuation+data+set#
+
+### Data Set Information
+
+The market historical data set of real estate valuation are collected from Sindian Dist., New Taipei City, Taiwan. This is a regression problem. The data set was randomly split into the training data set (2/3 samples) and the testing data set (1/3 samples).
+
+### Attribute Information
+
+The inputs are as follows:
+```
+X1=the transaction date (for example, 2013.250=2013 March, 2013.500=2013 June, etc.)
+X2=the house age (unit: year)
+X3=the distance to the nearest MRT station (unit: meter)
+X4=the number of convenience stores in the living circle on foot (integer)
+X5=the geographic coordinate, latitude. (unit: degree)
+X6=the geographic coordinate, longitude. (unit: degree)
+```
+The output is as follows: 
+```
+Y= house price of unit area (10000 New Taiwan Dollar/Ping, where Ping is a local unit, 1 Ping = 3.3 meter squared)
+```
+Relevant Papers: Yeh, I. C., & Hsu, T. K. (2018). Building real estate valuation models with comparative approach through case-based reasoning. Applied Soft Computing, 65, 260-271.
+
+### Data preprocessing
+
+```
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "X1 transaction date"] <- "x1"
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "X2 house age"] <- "x2"
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "X3 distance to the nearest MRT station"] <- "x3"
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "X4 number of convenience stores"] <- "x4"
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "X5 latitude"] <- "x5"
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "X6 longitude"] <- "x6"
+colnames(Real_estate_valuation_data_set)[colnames(Real_estate_valuation_data_set) == "Y house price of unit area"] <- "y"
+```
+
+## 3. Exploratory Analysis
+
+### Univariate Analysis
+
+Structure of the dataset
+
+```{r}
+str(Real_estate_valuation_data_set)
+```
+```{r}
+summary(Real_estate_valuation_data_set)
+ ```
+```{r}
+par(mfrow=c(2,2))
+for(i in 1:4) {
+	boxplot(Real_estate_valuation_data_set[,i], main=names(Real_estate_valuation_data_set)[i])
+}
+```
+```{r}
+par(mfrow=c(2,2))
+for(i in 1:4) {
+	counts <- table(Real_estate_valuation_data_set[,i])
+	name <- names(Real_estate_valuation_data_set)[i]
+	barplot(counts, main=name)
+}
+```
+
+### Multivariate Analysis
+
+### Relationship between House Cost and Transaction Date
+
+```{r}
+ggplot(Real_estate_valuation_data_set, aes(x1,y)) + geom_point()
+```
+
+### Relationship between House Cost and Age
+
+```{r}
+ggplot(Real_estate_valuation_data_set, aes(x2,y)) + geom_point()
+```
+
+### Relationship between House Cost and Station Distance
+
+```{r}
+ggplot(Real_estate_valuation_data_set, aes(x3,y)) + geom_point()
+```
+
+### Relationship between House Cost and No of Convenience Store
+
+```{r}
+ggplot(Real_estate_valuation_data_set, aes(x4,y)) + geom_point()
+```
+
+### Relationship between House Cost and X-Coordinate
+
+```{r}
+ggplot(Real_estate_valuation_data_set, aes(x5,y)) + geom_point()
+```
+
+### Relationship between House Cost and Y-coordinate
+
+```{r}
+ggplot(Real_estate_valuation_data_set, aes(x6,y)) + geom_point()
+```
+```{r}
+pairs(Real_estate_valuation_data_set[,1:4], col= "red", pch=18, main= "Relationship between first four explanatory variables")
+```
+
+### Correlation between several explanatory variables
+```{r}
+correlations <- cor(Real_estate_valuation_data_set[,1:6])
+corrplot(correlations, method="circle")
+```
+
+### Some Observations
+
+- The house age ranges from 0 years to an age of up to nearly 44 years old. The house price across a year does not show an obvious trend. This could imply that the house age is not so relevant to the house price, but we will see that it is useful i our analysis below.
+- There is a decreasing trend between the house price and distance to the train stations
+- there is an increasing trend between the no of convenience stores and house cost.
+- Majority of the buyers purchase the property that has a short distance to the nearest MRT station regardless of the age of the house.
+- The number of convenience stores within walking distance is higher if the distance to the nearest MRT station is short
+## 4. Model Building
+
+## Model 1: Backward Elimination
+```{r}
+full=lm(y~., data = Real_estate_valuation_data_set) # Start with full model with all variables x1, x2, x3
+drop1(full,test="F") # Manual F-test-based backward selection
+```
+```{r}
+## x6 is the least significant variable by the partial F test
+drop1(update(full, ~ . -x6), test = "F")
+```
+```{r}
+## Now x1 is the least significant, drop x6 then drop x1
+drop1(update(full, ~ . -x6-x1), test = "F")
+```
+```{r}
+model_1 = lm(y ~ x2 + x3 + x4 + x5, data = Real_estate_valuation_data_set)
+summary(model_1)
+```
+The Backward Elimination method suggests the best fitted model is y_hat = -5916 - 0.268 x2 - 0.004 x3 + 1.165 x4 + 238.6 x5
+
+### Analysis: Model 1
+
+```{r}
+par(mfrow=c(2,2))
+plot(model_1 , which=1)
+plot(model_1 , which=2)
+plot(model_1 , which=3)
+plot(model_1 , which=5)
+```
+
+- The relationship between fitted values and residuals are flat, which indicates the model has linear relationship and the residuals are roughly equal variance across the range of fitted values.
+
+
+- The residuals do not fall close to the line  and there are some deviations from normality, so it is assumed that the residuals are not normally distributed and this assumption is violated.
+
+- The red line in the third plot is flat and the variances in the square root of the standardized residuals are consistently across fitted values. Therefore, this is a sign of homoscedasticity and the assumption is not violated.
+
+-There are no values that fall in the upper and lower right hand side of the fourth plot beyond the red bands, so no influential cases.
+
+
+## Model 2: Forward Selection
+
+```{r}
+null=lm(y~1, data = Real_estate_valuation_data_set) 
+add1(null, scope =full, test = "F") 
+```
+```{r}
+add1(update(null, ~ . +x3), scope = full, test = "F")
+```
+```{r}
+add1(update(null, ~ . +x3+x4), scope = full, test = "F")
+```
+```{r}
+add1(update(null, ~ . +x3+x4+x2), scope = full, test = "F")
+```
+```{r}
+add1(update(null, ~ . +x3+x4+x2+x5), scope = full, test = "F")
+```
+```{r}
+add1(update(null, ~ . +x3+x4+x2+x5+x1), scope = full, test = "F")
+```
+```{r}
+model_2 = lm(y~x3+x4+x2+x5+x1, data = Real_estate_valuation_data_set)
+summary(model_2)
+```
+
+- Its evident that the best fitted model suggested by manual forward selection is: y = -15960 - 0.004 x3 + 1.136 x4 - 0.2694 x2 + 226.9 x5 + 5.138 x1, and so we call it model_2.
+
+
+
+### Analysis: Model 2
+
+```{r}
+par(mfrow=c(2,2))
+plot(model_2 , which=1)
+plot(model_2 , which=2)
+plot(model_2 , which=3)
+plot(model_2 , which=5)
+```
+
+- The relationship between fitted values and residuals are not flat , which indicates the model does not have linear relationship
+
+- The residuals do not fall close to the line and there are some deviations from normality, so it is assumed that the residuals are not normally distributed. (Normal Q-Q).
+
+- The variances in the square root of the standardized residuals are consistently across fitted values.(third plot)
+
+- There are no values that fall in the upper and lower right hand side of the plot beyond the red bands, therefore there is no evidence of influential cases.
+
+## Comparison between models
+
+```{r}
+anova(model_1,model_2)
+```
+
+
+
+## 5. Conclusion
+
+From our ANOVA test above we can see that Model 1 better fits the given data. Hence, we have found the best models among our proposed models.
