@@ -1,6 +1,8 @@
 # Assignment_A01_Regression_Models
  Assignment A01: Regression Models
  
+ The assignment solution is available at https://rpubs.com/shubhsharma/mba6693_assignment1
+ 
  1. Introduction
  
     This assignment is aimed at building regerssion models for the Taiwanese Real Estate Valuation problem and selecting the best model among the proposed ones on the basis of various observations that will me made.
@@ -32,6 +34,5 @@
     - Forward Selection
     - Backward Selection
  
- 5. Prediction
  
- 6. Conclusion
+ 5. Conclusion
